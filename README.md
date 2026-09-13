@@ -2,6 +2,8 @@
 
 Personal macOS and Linux packages for upstream [SpeedCrunch](https://bitbucket.org/heldercorreia/speedcrunch/), pinned as a submodule at commit `05d4f0f78e2b0646c4529adb1dad2453b378c736`. This repository is packaging only; it is not a SpeedCrunch fork.
 
+The Flatpak build applies one packaging-only patch for a filename capitalization mismatch in the pinned snapshot. The submodule itself remains unchanged.
+
 ## macOS with Homebrew
 
 ```sh

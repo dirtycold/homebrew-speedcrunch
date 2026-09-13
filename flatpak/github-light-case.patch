@@ -1,0 +1,16 @@
+From: homebrew-speedcrunch packaging
+Subject: Fix GitHub Light resource filename case
+
+Linux filesystems are case-sensitive. The resource collection refers to
+"GitHub light.json", while the tracked file is named "GitHub Light.json".
+
+--- a/src/resources/speedcrunch.qrc
++++ b/src/resources/speedcrunch.qrc
+@@ -71,6 +71,6 @@
+         <file>color-schemes/One Dark.json</file>
+         <file>color-schemes/Monokai.json</file>
+         <file>color-schemes/GitHub Dark.json</file>
+-        <file>color-schemes/GitHub light.json</file>
++        <file>color-schemes/GitHub Light.json</file>
+         <file>color-schemes/Gruvbox Dark.json</file>
+         <file>color-schemes/Gruvbox Light.json</file>

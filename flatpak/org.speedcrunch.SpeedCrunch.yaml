@@ -19,4 +19,5 @@ modules:
     sources:
       - type: dir
         path: ../speedcrunch
-
+      - type: patch
+        path: github-light-case.patch
