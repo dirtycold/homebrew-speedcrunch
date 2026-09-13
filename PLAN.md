@@ -29,8 +29,7 @@ homebrew-speedcrunch/
 Repository name should remain `homebrew-speedcrunch` so Homebrew supports:
 
 ```bash
-brew tap USER/speedcrunch
-brew install --cask speedcrunch
+brew install --cask USER/speedcrunch/speedcrunch
 ```
 
 ## Source
@@ -96,8 +95,7 @@ The cask should:
 Target deployment:
 
 ```bash
-brew tap USER/speedcrunch
-brew install --cask speedcrunch
+brew install --cask USER/speedcrunch/speedcrunch
 ```
 
 Updates should work through normal Homebrew commands:

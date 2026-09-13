@@ -7,11 +7,12 @@ The Flatpak build applies one packaging-only patch for a filename capitalization
 ## macOS with Homebrew
 
 ```sh
-brew tap dirtycold/speedcrunch
-brew install --cask speedcrunch
+brew install --cask dirtycold/speedcrunch/speedcrunch
 ```
 
-The initial cask checksums are placeholders. Run the **macOS release** workflow with tag `sc-05d4f0f7`; it builds native ARM64 and Intel DMGs, publishes them to a GitHub Release, and commits their SHA-256 values to the cask. The app is ad-hoc signed but not Apple-notarized.
+Current Homebrew versions require explicit trust for third-party taps. Using the fully qualified cask name grants trust only to this cask; after installation, ordinary `brew upgrade --cask speedcrunch` works normally.
+
+The **macOS release** workflow builds native ARM64 and Intel DMGs, publishes them to a GitHub Release, and commits their SHA-256 values to the cask. The app is ad-hoc signed but not Apple-notarized.
 
 ## Linux with Flatpak
 
