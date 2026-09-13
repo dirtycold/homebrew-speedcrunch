@@ -16,6 +16,8 @@ modules:
     subdir: src
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+    post-install:
+      - install -Dm644 /app/share/pixmaps/org.speedcrunch.SpeedCrunch.png /app/share/icons/hicolor/256x256/apps/org.speedcrunch.SpeedCrunch.png
     sources:
       - type: dir
         path: ../speedcrunch
