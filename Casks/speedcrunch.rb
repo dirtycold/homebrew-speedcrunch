@@ -2,8 +2,8 @@ cask "speedcrunch" do
   arch arm: "arm64", intel: "x86_64"
 
   version "sc-05d4f0f7"
-  sha256 arm:   "b3b93a370bfbd756ddc7df99ccad980055680d2e2964b6433f0a84bcaedce74e",
-         intel: "6086897d489abae00eb200a02676f16b920759f134cfcb5554000f3cbcc71a2d"
+  sha256 arm:   "b65b8e46b02bbcf574fe6d4383861ecbd8a4b219ae520fc5d21ea3143cde4b0a",
+         intel: "128a114c20af1b6678a2722113bfd830e4f25ef890d94d309d6681c00a97ccee"
 
   url "https://github.com/dirtycold/homebrew-speedcrunch/releases/download/#{version}/SpeedCrunch-#{version}-macos-#{arch}.dmg"
   name "SpeedCrunch"
