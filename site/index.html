@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SpeedCrunch snapshot packages</title>
+  <style>
+    :root { color-scheme: light dark; font: 18px/1.55 system-ui, sans-serif; }
+    body { max-width: 48rem; margin: 4rem auto; padding: 0 1.25rem; }
+    code, pre { background: color-mix(in srgb, CanvasText 8%, Canvas); border-radius: .3rem; }
+    code { padding: .1rem .3rem; } pre { padding: 1rem; overflow-x: auto; }
+    small { opacity: .75; }
+  </style>
+</head>
+<body>
+  <h1>SpeedCrunch snapshot packages</h1>
+  <p>This is personal packaging of the upstream <a href="https://bitbucket.org/heldercorreia/speedcrunch/">SpeedCrunch</a> calculator, not a fork or a new upstream project.</p>
+  <p>Pinned upstream revision: <code>05d4f0f78e2b0646c4529adb1dad2453b378c736</code>.</p>
+  <h2>macOS (Homebrew)</h2>
+  <pre><code>brew tap dirtycold/speedcrunch
+brew install --cask speedcrunch</code></pre>
+  <h2>Linux (Flatpak)</h2>
+  <p><a href="speedcrunch.flatpakref">Install from the Flatpak reference</a>, or run:</p>
+  <pre><code>flatpak remote-add --if-not-exists --user --no-gpg-verify speedcrunch \
+  https://dirtycold.github.io/homebrew-speedcrunch/repo/
+flatpak install --user speedcrunch org.speedcrunch.SpeedCrunch</code></pre>
+  <small>Packages are built from the pinned source snapshot and are not official upstream releases.</small>
+</body>
+</html>

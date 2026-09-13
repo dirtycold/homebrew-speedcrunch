@@ -1,0 +1,91 @@
+name: macOS release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (for example sc-05d4f0f7)
+        required: true
+        default: sc-05d4f0f7
+  push:
+    tags: ['sc-*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Verify pinned upstream source
+        run: test "$(git -C speedcrunch rev-parse HEAD)" = 05d4f0f78e2b0646c4529adb1dad2453b378c736
+      - run: brew install qt cmake ninja
+      - name: Build and deploy application
+        run: |
+          cmake -S speedcrunch/src -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}"
+          cmake --build build --target SpeedCrunch
+          "$(brew --prefix qt)/bin/macdeployqt" build/SpeedCrunch.app -always-overwrite
+          codesign --force --deep --sign - --timestamp=none build/SpeedCrunch.app
+          codesign --verify --deep --strict build/SpeedCrunch.app
+          if otool -L build/SpeedCrunch.app/Contents/MacOS/SpeedCrunch | grep -E '/(opt/homebrew|usr/local)/'; then
+            echo 'The app still links to Homebrew paths' >&2
+            exit 1
+          fi
+      - name: Create DMG
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          mkdir dmg-root
+          cp -R build/SpeedCrunch.app dmg-root/
+          hdiutil create -volname SpeedCrunch -srcfolder dmg-root \
+            -ov -format UDZO "SpeedCrunch-${RELEASE_TAG}-macos-${{ matrix.arch }}.dmg"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}
+          path: SpeedCrunch-*.dmg
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: macos-*
+          merge-multiple: true
+          path: dist
+      - name: Publish release and update cask checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" \
+              --notes "SpeedCrunch snapshot at upstream commit 05d4f0f78e2b0646c4529adb1dad2453b378c736. Unsigned and not notarized."
+          gh release upload "$RELEASE_TAG" dist/*.dmg --clobber
+          arm_sha=$(sha256sum dist/*-arm64.dmg | cut -d' ' -f1)
+          intel_sha=$(sha256sum dist/*-x86_64.dmg | cut -d' ' -f1)
+          sed -i -E "s/version \"[^\"]+\"/version \"$RELEASE_TAG\"/" Casks/speedcrunch.rb
+          sed -i -E "s/sha256 arm:   \"[0-9a-f]+\"/sha256 arm:   \"$arm_sha\"/" Casks/speedcrunch.rb
+          sed -i -E "s/intel: \"[0-9a-f]+\"/intel: \"$intel_sha\"/" Casks/speedcrunch.rb
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add Casks/speedcrunch.rb
+          git diff --cached --quiet || git commit -m "Update cask for $RELEASE_TAG"
+          git push origin HEAD:main

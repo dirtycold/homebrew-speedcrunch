@@ -1,0 +1,41 @@
+name: Flatpak release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['sc-*']
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Verify pinned upstream source
+        run: test "$(git -C speedcrunch rev-parse HEAD)" = 05d4f0f78e2b0646c4529adb1dad2453b378c736
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.kde.Platform//6.10 org.kde.Sdk//6.10
+      - name: Build and export
+        run: |
+          flatpak-builder --user --force-clean --repo=.flatpak-repo build-flatpak flatpak/org.speedcrunch.SpeedCrunch.yaml
+          flatpak build-update-repo .flatpak-repo
+          mkdir .pages
+          cp -R site/. .pages/
+          cp -R .flatpak-repo .pages/repo
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .pages
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/pages.yml

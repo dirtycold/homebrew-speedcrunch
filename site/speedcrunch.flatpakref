@@ -1,0 +1,9 @@
+[Flatpak Ref]
+Name=org.speedcrunch.SpeedCrunch
+Title=SpeedCrunch
+Url=https://dirtycold.github.io/homebrew-speedcrunch/repo/
+Branch=stable
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+IsRuntime=false
+GPGKey=
+
