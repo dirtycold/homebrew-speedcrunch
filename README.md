@@ -34,7 +34,7 @@ Move the `speedcrunch` submodule to a deliberately selected upstream commit, the
 
 ```sh
 flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-flatpak install --user flathub org.kde.Platform//6.10 org.kde.Sdk//6.10
+flatpak install --user flathub org.kde.Platform//6.11 org.kde.Sdk//6.11
 flatpak-builder --user --force-clean --repo=.flatpak-repo build-flatpak \
   flatpak/org.speedcrunch.SpeedCrunch.yaml
 ```
