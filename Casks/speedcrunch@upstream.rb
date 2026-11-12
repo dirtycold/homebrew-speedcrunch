@@ -15,6 +15,12 @@ cask "speedcrunch@upstream" do
 
   app "SpeedCrunch.app"
 
+  postflight do
+    system_command "/usr/bin/xattr",
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/SpeedCrunch.app"],
+                   must_succeed: true
+  end
+
   caveats <<~EOS
     This personal upstream build is not signed or notarized. On first launch, use
     Control-click > Open if macOS Gatekeeper blocks it.
