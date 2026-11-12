@@ -4,14 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag (for example sc-05d4f0f7)
+        description: Release tag (sc-05d4f0f7 or upstream-1.1.0)
         required: true
         default: sc-05d4f0f7
   push:
-    tags: ['sc-*']
+    tags: ['sc-*', 'upstream-*']
 
 permissions:
   contents: write
+
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   build:
@@ -29,10 +32,23 @@ jobs:
           submodules: true
       - name: Verify pinned upstream source
         run: test "$(git -C speedcrunch rev-parse HEAD)" = 05d4f0f78e2b0646c4529adb1dad2453b378c736
+      - uses: actions/checkout@v4
+        if: startsWith(env.RELEASE_TAG, 'upstream-')
+        with:
+          repository: heldercorreia/speedcrunch
+          ref: e7ca37fbf066162cece0ecf43d4ddc6ca1eb195d
+          path: upstream
+      - name: Select source
+        run: |
+          case "$RELEASE_TAG" in
+            sc-*) echo 'SOURCE_DIR=speedcrunch' >> "$GITHUB_ENV" ;;
+            upstream-1.1.0) echo 'SOURCE_DIR=upstream' >> "$GITHUB_ENV" ;;
+            *) echo "Unsupported release tag: $RELEASE_TAG" >&2; exit 1 ;;
+          esac
       - run: brew install qt cmake ninja
       - name: Build and deploy application
         run: |
-          cmake -S speedcrunch/src -B build -G Ninja \
+          cmake -S "$SOURCE_DIR/src" -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH="$(brew --prefix qt)" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}"
@@ -75,17 +91,30 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          cask=Casks/speedcrunch.rb
+          release_options=()
+          notes="SpeedCrunch snapshot at upstream commit 05d4f0f78e2b0646c4529adb1dad2453b378c736. Unsigned and not notarized."
+          if [[ "$RELEASE_TAG" == upstream-* ]]; then
+            cask=Casks/speedcrunch@upstream.rb
+            release_options=(--latest=false)
+            sed -e 's/cask "speedcrunch"/cask "speedcrunch@upstream"/' \
+              -e 's/app "SpeedCrunch.app"/app "SpeedCrunch.app", target: "SpeedCrunch Upstream.app"/' \
+              -e '/  livecheck do/,/  end/d' \
+              -e 's/personal snapshot/personal upstream build/' \
+              Casks/speedcrunch.rb > "$cask"
+            notes="SpeedCrunch upstream 1.1.0. Ad-hoc signed and not notarized."
+          fi
           gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
-            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" \
-              --notes "SpeedCrunch snapshot at upstream commit 05d4f0f78e2b0646c4529adb1dad2453b378c736. Unsigned and not notarized."
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" "${release_options[@]}" \
+              --notes "$notes"
           gh release upload "$RELEASE_TAG" dist/*.dmg --clobber
           arm_sha=$(sha256sum dist/*-arm64.dmg | cut -d' ' -f1)
           intel_sha=$(sha256sum dist/*-x86_64.dmg | cut -d' ' -f1)
-          sed -i -E "s/version \"[^\"]+\"/version \"$RELEASE_TAG\"/" Casks/speedcrunch.rb
-          sed -i -E "s/sha256 arm:   \"[0-9a-f]+\"/sha256 arm:   \"$arm_sha\"/" Casks/speedcrunch.rb
-          sed -i -E "s/intel: \"[0-9a-f]+\"/intel: \"$intel_sha\"/" Casks/speedcrunch.rb
+          sed -i -E "s/version \"[^\"]+\"/version \"$RELEASE_TAG\"/" "$cask"
+          sed -i -E "s/sha256 arm:   \"[0-9a-f]+\"/sha256 arm:   \"$arm_sha\"/" "$cask"
+          sed -i -E "s/intel: \"[0-9a-f]+\"/intel: \"$intel_sha\"/" "$cask"
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add Casks/speedcrunch.rb
-          git diff --cached --quiet || git commit -m "Update cask for $RELEASE_TAG"
+          git add "$cask"
+          git diff --cached --quiet || git commit -m "Updated cask for $RELEASE_TAG"
           git push origin HEAD:main

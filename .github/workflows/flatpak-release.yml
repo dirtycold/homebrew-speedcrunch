@@ -3,7 +3,7 @@ name: Flatpak release
 on:
   workflow_dispatch:
   push:
-    tags: ['sc-*']
+    tags: ['sc-*', 'upstream-*']
 
 permissions:
   contents: read
@@ -28,6 +28,7 @@ jobs:
       - name: Build and export
         run: |
           flatpak-builder --user --force-clean --repo=.flatpak-repo build-flatpak flatpak/org.speedcrunch.SpeedCrunch.yaml
+          flatpak-builder --user --force-clean --repo=.flatpak-repo build-flatpak-upstream flatpak/org.speedcrunch.SpeedCrunch.upstream.yaml
           flatpak build-update-repo .flatpak-repo
           mkdir .pages
           cp -R site/. .pages/
