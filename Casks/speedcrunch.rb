@@ -26,8 +26,8 @@ cask "speedcrunch" do
   end
 
   caveats <<~EOS
-    This personal snapshot is not signed or notarized. On first launch, use
-    Control-click > Open if macOS Gatekeeper blocks it.
+    This personal snapshot is ad-hoc signed but not notarized.
+    Quarantine is removed automatically during installation.
   EOS
 end
 

@@ -22,8 +22,8 @@ cask "speedcrunch@upstream" do
   end
 
   caveats <<~EOS
-    This personal upstream build is not signed or notarized. On first launch, use
-    Control-click > Open if macOS Gatekeeper blocks it.
+    This personal upstream build is ad-hoc signed but not notarized.
+    Quarantine is removed automatically during installation.
   EOS
 end
 
