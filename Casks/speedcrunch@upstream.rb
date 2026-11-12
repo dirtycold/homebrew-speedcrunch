@@ -11,7 +11,9 @@ cask "speedcrunch@upstream" do
   homepage "https://dirtycold.github.io/homebrew-speedcrunch/"
 
 
-  app "SpeedCrunch.app", target: "SpeedCrunch Upstream.app"
+  conflicts_with cask: "speedcrunch"
+
+  app "SpeedCrunch.app"
 
   caveats <<~EOS
     This personal upstream build is not signed or notarized. On first launch, use

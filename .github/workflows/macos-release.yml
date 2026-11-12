@@ -98,7 +98,7 @@ jobs:
             cask=Casks/speedcrunch@upstream.rb
             release_options=(--latest=false)
             sed -e 's/cask "speedcrunch"/cask "speedcrunch@upstream"/' \
-              -e 's/app "SpeedCrunch.app"/app "SpeedCrunch.app", target: "SpeedCrunch Upstream.app"/' \
+              -e 's/conflicts_with cask: "speedcrunch@upstream"/conflicts_with cask: "speedcrunch"/' \
               -e '/  livecheck do/,/  end/d' \
               -e 's/personal snapshot/personal upstream build/' \
               Casks/speedcrunch.rb > "$cask"

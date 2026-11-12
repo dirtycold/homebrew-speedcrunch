@@ -15,6 +15,8 @@ cask "speedcrunch" do
     strategy :github_latest
   end
 
+  conflicts_with cask: "speedcrunch@upstream"
+
   app "SpeedCrunch.app"
 
   caveats <<~EOS
