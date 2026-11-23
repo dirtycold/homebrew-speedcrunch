@@ -15,10 +15,8 @@ cask "speedcrunch@upstream" do
 
   app "SpeedCrunch.app"
 
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/SpeedCrunch.app"],
-                   must_succeed: true
+  postflight_steps do
+    run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{appdir}}/SpeedCrunch.app"]
   end
 
   caveats <<~EOS
